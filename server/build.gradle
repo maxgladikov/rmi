@@ -1,3 +1,0 @@
-application {
-    mainClass = 'online.gladikov.rmi.server.App'
-}
