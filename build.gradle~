@@ -1,0 +1,88 @@
+apply plugin: 'eclipse'
+
+
+version = "1.2.1"
+
+
+ext { 
+    lombokVersion = "1.18.28"
+    jacocoVersion = "0.8.7"
+    jUnitVersion = "5.10.0"
+    logbackVersion = "1.4.11"
+}
+
+def appProjects=[project(':server'),project(':client')]
+def libProjects=[project(':lib')]
+
+configure(libProjects)  {
+	apply plugin: 'java-library'
+}
+
+configure(appProjects)  {
+	
+	apply plugin: 'application'
+	
+	java. toolchain.languageVersion = JavaLanguageVersion.of(17)
+	
+	repositories {
+		mavenCentral()
+	}
+	
+	dependencies{
+		implementation project(':lib')
+		annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+		implementation 'org.slf4j:slf4j-api:2.0.9'
+		implementation "ch.qos.logback:logback-core:$logbackVersion"
+		implementation "ch.qos.logback:logback-classic:$logbackVersion"
+		testImplementation "org.junit.jupiter:junit-jupiter-api:$jUnitVersion"
+		testImplementation 'org.mockito:mockito-core:5.7.0'
+		testImplementation "ch.qos.logback:logback-core:$logbackVersion"
+		testImplementation "ch.qos.logback:logback-classic:$logbackVersion"
+		testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jUnitVersion"
+	}
+	
+	test {
+	    useJUnitPlatform()
+	    testLogging {
+	        events "passed", "skipped", "failed"
+	    }
+	}
+	
+	configurations {
+		compileOnly.extendsFrom annotationProcessor
+		testCompileOnly.extendsFrom annotationProcessor
+		testAnnotationProcessor.extendsFrom annotationProcessor
+	}
+	jib {
+		var tag = "latest"
+		from {
+		  image = "eclipse-temurin:17.0.8.1_1-jre-ubi9-minimal"
+		  
+		  platforms{
+			  platform {
+				  architecture = 'arm64'
+						  os = 'linux'
+			  }
+		  }
+		}
+		to {
+		  image = "maxgladikov/${rootProject.name}.${project.name}:${rootProject.version}"
+		  tags =  "$rootProject.version"
+		  auth {
+			  username = "maxgladikov"
+			  password = System.getenv("DOCKER_PASSWORD")
+		  }
+		}
+		container {
+			jvmFlags = [
+					  	"-server",
+						"-Duser.timezone=UTC",
+						"-Xms128m",
+						"-Xmx500m"
+						]
+		creationTime = Instant.now().toString()
+		format = com.google.cloud.tools.jib.api.buildplan.ImageFormat.OCI
+		}
+	  }
+
+}
