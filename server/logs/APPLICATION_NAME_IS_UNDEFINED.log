@@ -1,0 +1,4 @@
+16:30:44.303 ERROR Server [main] java.rmi.ConnectException: Connection refused to host: 127.0.1.1; nested exception is: 
+	java.net.ConnectException: Connection refused
+16:52:57.772 ERROR App [main] java.rmi.ConnectException: Connection refused to host: 127.0.1.1; nested exception is: 
+	java.net.ConnectException: Connection refused

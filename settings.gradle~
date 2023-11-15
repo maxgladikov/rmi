@@ -1,0 +1,5 @@
+
+
+
+rootProject.name = 'rmi'
+include('server','client')
