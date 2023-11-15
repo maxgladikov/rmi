@@ -1,5 +1,0 @@
-
-
-
-rootProject.name = 'root'
-include('server','client','lib')
